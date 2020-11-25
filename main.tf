@@ -162,13 +162,19 @@ resource "null_resource" "configure-cat-app" {
   provisioner "remote-exec" {
     inline = [
       "sudo add-apt-repository universe",
-      "sudo apt -y update",
-      "sudo apt -y install apache2",
-      "sudo systemctl start apache2",
-      "sudo chown -R ubuntu:ubuntu /var/www/html",
+      "sudo apt -y update && sudo apt -y install apache2 && sudo systemctl start apache2 && sudo chown -R ubuntu:ubuntu /var/www/html && sudo apt -y install cowsay"
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = tls_private_key.hashicat.private_key_pem
+      host        = aws_eip.hashicat.public_ip
+    }
+  }
+  provisioner "remote-exec" {
+    inline = [
       "chmod +x *.sh",
       "PLACEHOLDER=${var.placeholder} WIDTH=${var.width} HEIGHT=${var.height} PREFIX=${var.prefix} ./deploy_app.sh",
-      "sudo apt -y install cowsay",
       "cowsay Mooooooooooo!",
     ]
 
